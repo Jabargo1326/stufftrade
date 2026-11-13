@@ -91,7 +91,7 @@ stufftrade/
 
 ## Photos
 * **Posts made in the app:** *Create post* → tap the **+** square → pick up to 3 pictures. A preview shows right
-  away. The files are saved in `server/uploads/` (not uploaded to GitHub on purpose).
+  away. Photos are shrunk automatically and saved inside the database (table `images`).
 * **Demo posts (from `npm run seed`):** their pictures are in `client/public/demo/`. To use your own photo, put the
   jpg in that folder and change the file name in `server/seed.js`, then run `npm run seed` again.
 * Demo posts show no picture? Run `npm run fix-photos` (adds them, and two extra demo posts, without deleting anything).
@@ -111,12 +111,33 @@ stufftrade/
 `GET/POST /api/posts` · `GET/PUT/DELETE /api/posts/:id` · `POST /api/posts/:id/save` ·
 `GET/POST /api/posts/:id/offers` · `GET /api/offers/mine` · `POST /api/offers/:id/choose|decline`
 
-## Deploying as one site (optional)
-```bash
-npm run build --prefix client      # creates client/dist
-npm start --prefix server          # server now serves the site at http://localhost:3001
-```
-Set `JWT_SECRET` as an environment variable on any real hosting.
+## Deploying to the internet
+
+### Option A (easiest): Railway - website + MySQL in one dashboard
+Free during Railway's trial (about 30 days / $5 credit), then roughly $5 per month.
+1. Push the project to GitHub (GitHub Desktop → Commit → Push origin).
+2. railway.com → log in with GitHub → **New Project → Deploy from GitHub repo** → pick `stufftrade`.
+3. In the project: **+ Create → Database → Add MySQL**.
+4. Click your app service → **Variables**, add:
+   * `DATABASE_URL` = `${{MySQL.MYSQL_URL}}`   (links the app to the database)
+   * `JWT_SECRET` = any long random text
+   * `SEED_DEMO` = `true`   (adds the demo users/posts, only when the database is empty)
+5. App service → **Settings**: Build Command `npm run build`, Start Command `npm start`.
+   Then **Networking → Generate Domain**.
+6. Wait for the deploy to finish, then open the generated link.
+
+### Option B: Render (free website) + TiDB Cloud (free MySQL)
+Render hosts the website + API as ONE web service. Render has no MySQL, so the database lives on
+**TiDB Cloud Starter** (free, MySQL-compatible). Photos are stored inside the database, so they survive restarts.
+1. Push the project to GitHub.
+2. TiDB Cloud (tidbcloud.com): create a free **Starter** instance (MySQL-compatible) → **Connect** →
+   copy host, port (4000), user, password. The database name is `test`.
+3. Render (render.com) → **New → Web Service** → pick your repo.
+   * Build Command: `npm run build`   * Start Command: `npm start`   * Instance Type: **Free**
+   * Environment variables: `DB_HOST`, `DB_PORT` (4000), `DB_USER`, `DB_PASSWORD`, `DB_NAME` (test),
+     `DB_SSL` (true), `JWT_SECRET` (any long random text), `SEED_DEMO` (true). Do NOT set `PORT`.
+4. **Create Web Service**, wait for "Your service is live", open the `onrender.com` link.
+Free Render services fall asleep after 15 minutes without visitors; the next visit takes about a minute.
 
 ## Troubleshooting
 * **"Cannot GET /" at http://localhost:3001** → normal! That port is only the backend (API). The website is at

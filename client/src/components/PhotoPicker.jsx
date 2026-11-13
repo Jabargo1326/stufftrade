@@ -1,6 +1,7 @@
 import { useRef } from 'react';
 import { PlusIcon, CloseIcon } from './Icons.jsx';
 import { imgUrl } from '../api.js';
+import { compressImage } from '../imageUtils.js';
 
 // value = array of { key, src, file?, url? }
 //   - new photo from the phone:  { file, src: blobUrl }
@@ -8,11 +9,12 @@ import { imgUrl } from '../api.js';
 export default function PhotoPicker({ value, onChange, max = 3 }) {
   const input = useRef(null);
 
-  const addFiles = (e) => {
-    const files = Array.from(e.target.files || []).slice(0, max - value.length);
+  const addFiles = async (e) => {
+    const picked = Array.from(e.target.files || []).slice(0, max - value.length);
+    e.target.value = '';
+    const files = await Promise.all(picked.map((f) => compressImage(f))); // shrink big phone photos
     const added = files.map((file) => ({ key: crypto.randomUUID?.() || String(Math.random()), file, src: URL.createObjectURL(file) }));
     onChange([...value, ...added]);
-    e.target.value = '';
   };
   const remove = (key) => onChange(value.filter((p) => p.key !== key));
 

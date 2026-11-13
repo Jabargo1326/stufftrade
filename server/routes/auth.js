@@ -3,7 +3,7 @@ import bcrypt from 'bcryptjs';
 import { get, run } from '../db.js';
 import { wrap } from '../async.js';
 import { signToken, requireAuth } from '../auth.js';
-import { upload, fileUrls } from '../upload.js';
+import { upload, saveImages } from '../upload.js';
 
 const router = Router();
 
@@ -98,7 +98,7 @@ router.put('/me', requireAuth, upload.single('photo'), wrap(async (req, res) => 
   const taken = await get('SELECT id FROM users WHERE mobile = ? AND id != ?', [phone, req.userId]);
   if (taken) return res.status(409).json({ error: 'Mobile already registered.', fields: { mobile: 'Mobile already registered' } });
 
-  if (req.file) await run('UPDATE users SET photo = ? WHERE id = ?', [fileUrls([req.file])[0], req.userId]);
+  if (req.file) await run('UPDATE users SET photo = ? WHERE id = ?', [(await saveImages([req.file]))[0], req.userId]);
   await run('UPDATE users SET name = ?, mobile = ?, area = ? WHERE id = ?', [name.trim(), phone, area.trim(), req.userId]);
   const user = await get('SELECT * FROM users WHERE id = ?', [req.userId]);
   res.json({ user: publicUser(user) });

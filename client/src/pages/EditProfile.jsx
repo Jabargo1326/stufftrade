@@ -5,6 +5,7 @@ import { useAuth } from '../AuthContext.jsx';
 import { useToast } from '../components/Toast.jsx';
 import Screen, { Field } from '../components/Screen.jsx';
 import Avatar from '../components/Avatar.jsx';
+import { compressImage } from '../imageUtils.js';
 
 export default function EditProfile() {
   const { user, setUser } = useAuth();
@@ -18,11 +19,12 @@ export default function EditProfile() {
   const [busy, setBusy] = useState(false);
   const set = (k) => (e) => setF({ ...f, [k]: e.target.value });
 
-  const pick = (e) => {
+  const pick = async (e) => {
     const picked = e.target.files?.[0];
     if (!picked) return;
-    setFile(picked);
-    setPreview(URL.createObjectURL(picked));
+    const small = await compressImage(picked);
+    setFile(small);
+    setPreview(URL.createObjectURL(small));
   };
 
   const submit = async (e) => {

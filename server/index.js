@@ -4,11 +4,13 @@ import cors from 'cors';
 import path from 'node:path';
 import fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { initDb, DB_NAME } from './db.js';
+import { initDb, get, DB_NAME } from './db.js';
+import { seedDemo } from './seedData.js';
 import { uploadDir } from './upload.js';
 import authRoutes from './routes/auth.js';
 import postRoutes from './routes/posts.js';
 import offerRoutes from './routes/offers.js';
+import imageRoutes from './routes/images.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
@@ -23,8 +25,19 @@ try {
 } catch (err) {
   console.error('\n❌ Could not connect to MySQL:', err.code || '', err.message);
   console.error('   1) Is MySQL running? (XAMPP: press Start next to MySQL)');
-  console.error('   2) Did you copy server/.env.example to server/.env and set DB_PASSWORD?\n');
+  console.error('   2) Did you copy server/.env.example to server/.env and set DB_PASSWORD?');
+  console.error('   3) On Render: check the DB_* environment variables (and DB_SSL=true for cloud databases).\n');
   process.exit(1);
+}
+
+// SEED_DEMO=true -> add the demo users/posts, but ONLY if the database has no users yet.
+if (process.env.SEED_DEMO === 'true') {
+  try {
+    const row = await get('SELECT COUNT(*) AS c FROM users');
+    if (Number(row.c) === 0) await seedDemo();
+  } catch (err) {
+    console.error('Could not add demo data:', err.message);
+  }
 }
 
 app.use(cors());
@@ -34,6 +47,7 @@ app.use('/uploads', express.static(uploadDir));
 app.use('/api/auth', authRoutes);
 app.use('/api/posts', postRoutes);
 app.use('/api/offers', offerRoutes);
+app.use('/api/images', imageRoutes);
 app.get('/api/health', (req, res) => res.json({ ok: true }));
 
 // Optional: after `npm run build` in /client, the server can serve the finished site too.

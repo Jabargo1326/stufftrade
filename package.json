@@ -8,6 +8,8 @@
     "server": "npm run dev --prefix server",
     "client": "npm run dev --prefix client",
     "seed": "npm run seed --prefix server",
-    "fix-photos": "npm run fix-photos --prefix server"
+    "fix-photos": "npm run fix-photos --prefix server",
+    "build": "npm install --prefix server && npm install --prefix client && npm run build --prefix client",
+    "start": "npm start --prefix server"
   }
 }

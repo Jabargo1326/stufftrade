@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { all, get, run } from '../db.js';
 import { wrap } from '../async.js';
 import { requireAuth } from '../auth.js';
-import { upload, fileUrls } from '../upload.js';
+import { upload, saveImages } from '../upload.js';
 
 const router = Router();
 router.use(requireAuth);
@@ -82,9 +82,10 @@ router.post('/', upload.array('photos', 3), wrap(async (req, res) => {
   const errors = validate(req.body);
   if (Object.keys(errors).length) return res.status(400).json({ error: 'Please fix the highlighted fields.', fields: errors });
   const { title, category, description = '', wants, area } = req.body;
+  const urls = await saveImages(req.files);
   const info = await run(
     'INSERT INTO posts (user_id, title, category, description, wants, area, photos) VALUES (?, ?, ?, ?, ?, ?, ?)',
-    [req.userId, title.trim(), category, description.trim(), wants.trim(), area.trim(), JSON.stringify(fileUrls(req.files))]
+    [req.userId, title.trim(), category, description.trim(), wants.trim(), area.trim(), JSON.stringify(urls)]
   );
   const row = await get(`${POST_SELECT} WHERE p.id = ?`, [req.userId, info.insertId]);
   res.status(201).json({ post: shape(row) });
@@ -102,7 +103,7 @@ router.put('/:id', upload.array('photos', 3), wrap(async (req, res) => {
   try { keep = JSON.parse(req.body.keep || '[]'); } catch { keep = []; }
   const existing = JSON.parse(post.photos || '[]');
   keep = keep.filter((u) => existing.includes(u));
-  const photos = [...keep, ...fileUrls(req.files)].slice(0, 3);
+  const photos = [...keep, ...(await saveImages(req.files))].slice(0, 3);
 
   const { title, category, description = '', wants, area } = req.body;
   await run('UPDATE posts SET title=?, category=?, description=?, wants=?, area=?, photos=? WHERE id=?',
@@ -116,6 +117,8 @@ router.delete('/:id', wrap(async (req, res) => {
   const post = await get('SELECT * FROM posts WHERE id = ?', [req.params.id]);
   if (!post) return res.status(404).json({ error: 'Post not found.' });
   if (post.user_id !== req.userId) return res.status(403).json({ error: 'This is not your post.' });
+  await run('DELETE FROM saved WHERE post_id = ?', [post.id]);
+  await run('DELETE FROM offers WHERE post_id = ?', [post.id]);
   await run('DELETE FROM posts WHERE id = ?', [post.id]);
   res.json({ ok: true });
 }));
@@ -158,9 +161,10 @@ router.post('/:id/offers', upload.array('photos', 3), wrap(async (req, res) => {
   const dup = await get(`SELECT id FROM offers WHERE post_id = ? AND user_id = ? AND status = 'pending'`, [post.id, req.userId]);
   if (dup) return res.status(409).json({ error: 'You already sent an offer on this post.' });
 
+  const urls = await saveImages(req.files);
   const info = await run(
     'INSERT INTO offers (post_id, user_id, item, cash, message, photos) VALUES (?, ?, ?, ?, ?, ?)',
-    [post.id, req.userId, item, cash, (req.body.message || '').trim(), JSON.stringify(fileUrls(req.files))]
+    [post.id, req.userId, item, cash, (req.body.message || '').trim(), JSON.stringify(urls)]
   );
   res.status(201).json({ offer: { id: info.insertId } });
 }));
