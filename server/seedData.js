@@ -8,7 +8,7 @@ export async function seedDemo() {
   // children first, then parents (foreign keys)
   for (const t of ['saved', 'offers', 'posts', 'users']) {
     await run(`DELETE FROM ${t}`);
-    if (t !== 'saved') await run(`ALTER TABLE ${t} AUTO_INCREMENT = 1`);
+    if (t !== 'saved') await run(`ALTER TABLE ${t} AUTO_INCREMENT = 1`).catch(() => {}); // not every host allows this; harmless to skip
   }
 
   const hash = bcrypt.hashSync('password123', 10);

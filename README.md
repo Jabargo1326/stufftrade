@@ -113,8 +113,7 @@ stufftrade/
 
 ## Deploying to the internet
 
-### Option A (easiest): Railway - website + MySQL in one dashboard
-Free during Railway's trial (about 30 days / $5 credit), then roughly $5 per month.
+### Option A: Railway - website + MySQL in one dashboard (paid after a ~30 day trial, about $5/month)
 1. Push the project to GitHub (GitHub Desktop → Commit → Push origin).
 2. railway.com → log in with GitHub → **New Project → Deploy from GitHub repo** → pick `stufftrade`.
 3. In the project: **+ Create → Database → Add MySQL**.
@@ -126,7 +125,7 @@ Free during Railway's trial (about 30 days / $5 credit), then roughly $5 per mon
    Then **Networking → Generate Domain**.
 6. Wait for the deploy to finish, then open the generated link.
 
-### Option B: Render (free website) + TiDB Cloud (free MySQL)
+### Option B (FREE, recommended): Render (free website) + TiDB Cloud (free MySQL)
 Render hosts the website + API as ONE web service. Render has no MySQL, so the database lives on
 **TiDB Cloud Starter** (free, MySQL-compatible). Photos are stored inside the database, so they survive restarts.
 1. Push the project to GitHub.
