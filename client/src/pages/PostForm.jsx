@@ -68,7 +68,7 @@ export default function PostForm({ mode }) {
   };
 
   return (
-    <Screen title={editing ? 'Edit post' : 'Create post'} back={editing} nav={editing ? 'profile' : 'post'}>
+    <Screen title={editing ? 'Edit post' : 'Create post'} back={editing} nav={editing ? 'profile' : 'post'} navMobile={!editing}>
       {loading ? <p className="muted center">Loading…</p> : (
         <form className="form-wide" onSubmit={submit} noValidate>
           <PhotoPicker value={photos} onChange={setPhotos} />

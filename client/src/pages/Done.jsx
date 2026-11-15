@@ -11,7 +11,6 @@ export default function Done() {
 
   const screens = {
     published: {
-      nav: 'post',
       title: 'Post published',
       text: 'People nearby can now see your trade post.',
       primary: ['View my posts', '/my-posts'],
@@ -26,7 +25,13 @@ export default function Done() {
     'offer-chosen': {
       title: 'Offer chosen',
       text: `${name} has been notified. The other offers were declined.`,
-      primary: ['Back to my posts', '/my-posts'],
+      primary: state?.tradeId ? ['View trade details', `/trade/${state.tradeId}`] : ['Back to my posts', '/my-posts'],
+      secondary: ['Back to my posts', '/my-posts'],
+    },
+    'trade-complete': {
+      title: 'Trade successful',
+      text: `Your trade with ${name} is complete. Happy trading!`,
+      primary: ['View my trades', '/trades'],
       secondary: ['Browse trade posts', '/'],
     },
   };

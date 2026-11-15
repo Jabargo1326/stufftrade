@@ -10,16 +10,18 @@ router.use(requireAuth);
 export const CATEGORIES = ['Gadgets', 'Clothes', 'Books', 'Home', 'Sports', 'Toys', 'Music', 'Other'];
 
 // One query that returns everything a post card/detail needs.
-const POST_SELECT = `
+export const POST_SELECT = `
   SELECT p.*, u.name AS owner_name, u.photo AS owner_photo,
     (SELECT COUNT(*) FROM offers o WHERE o.post_id = p.id) AS offers_count,
     (SELECT COUNT(*) FROM offers o WHERE o.post_id = p.id AND o.status = 'pending') AS pending_count,
-    (SELECT COUNT(*) FROM posts t WHERE t.user_id = p.user_id AND t.status = 'traded') AS owner_trades,
+    (SELECT COUNT(*) FROM trades t WHERE t.status = 'completed' AND (t.owner_id = p.user_id OR t.partner_id = p.user_id)) AS owner_trades,
+    (SELECT t.id FROM trades t WHERE t.post_id = p.id LIMIT 1) AS trade_id,
+    (SELECT t.status FROM trades t WHERE t.post_id = p.id LIMIT 1) AS trade_status,
     EXISTS (SELECT 1 FROM saved s WHERE s.post_id = p.id AND s.user_id = ?) AS is_saved
   FROM posts p JOIN users u ON u.id = p.user_id
 `;
 
-const shape = (row) => ({
+export const shape = (row) => ({
   ...row,
   photos: JSON.parse(row.photos || '[]'),
   is_saved: !!row.is_saved,
@@ -34,11 +36,11 @@ const validate = (b) => {
   return errors;
 };
 
-// GET /api/posts?q=bike&category=Gadgets  -> open posts from OTHER people
+// GET /api/posts?q=bike&category=Gadgets  -> the catalog: ALL open posts (yours too)
 router.get('/', wrap(async (req, res) => {
   const { q = '', category = '' } = req.query;
-  const where = [`p.status = 'open'`, 'p.user_id != ?'];
-  const params = [req.userId, req.userId];
+  const where = [`p.status = 'open'`];
+  const params = [req.userId];
   if (q.trim()) {
     where.push('(p.title LIKE ? OR p.description LIKE ? OR p.wants LIKE ?)');
     const like = `%${q.trim()}%`;
@@ -96,6 +98,7 @@ router.put('/:id', upload.array('photos', 3), wrap(async (req, res) => {
   const post = await get('SELECT * FROM posts WHERE id = ?', [req.params.id]);
   if (!post) return res.status(404).json({ error: 'Post not found.' });
   if (post.user_id !== req.userId) return res.status(403).json({ error: 'This is not your post.' });
+  if (post.status === 'traded') return res.status(400).json({ error: "A traded post can't be edited." });
   const errors = validate(req.body);
   if (Object.keys(errors).length) return res.status(400).json({ error: 'Please fix the highlighted fields.', fields: errors });
 
@@ -117,6 +120,7 @@ router.delete('/:id', wrap(async (req, res) => {
   const post = await get('SELECT * FROM posts WHERE id = ?', [req.params.id]);
   if (!post) return res.status(404).json({ error: 'Post not found.' });
   if (post.user_id !== req.userId) return res.status(403).json({ error: 'This is not your post.' });
+  if (post.status === 'traded') return res.status(400).json({ error: "A traded post can't be deleted (it's part of your trade history)." });
   await run('DELETE FROM saved WHERE post_id = ?', [post.id]);
   await run('DELETE FROM offers WHERE post_id = ?', [post.id]);
   await run('DELETE FROM posts WHERE id = ?', [post.id]);

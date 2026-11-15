@@ -58,6 +58,11 @@ export const api = {
   updatePost: (id, form) => request(`/posts/${id}`, { method: 'PUT', form }),
   deletePost: (id) => request(`/posts/${id}`, { method: 'DELETE' }),
   toggleSave: (id) => request(`/posts/${id}/save`, { method: 'POST' }),
+  // public profiles + trades
+  user: (id) => request(`/users/${id}`),
+  trades: () => request('/trades'),
+  trade: (id) => request(`/trades/${id}`),
+  confirmTrade: (id) => request(`/trades/${id}/confirm`, { method: 'POST' }),
   // offers
   postOffers: (id) => request(`/posts/${id}/offers`),
   sendOffer: (id, form) => request(`/posts/${id}/offers`, { method: 'POST', form }),

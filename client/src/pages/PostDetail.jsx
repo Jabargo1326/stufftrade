@@ -47,7 +47,7 @@ export default function PostDetail() {
   };
 
   return (
-    <Screen nav={mine ? 'profile' : 'browse'} className="detail-wrap">
+    <Screen nav={mine ? 'profile' : 'browse'} navMobile={false} className="detail-wrap">
       <div className="detail">
         <div className="detail-media">
           <PostImage photos={post.photos} category={post.category} alt={post.title} />
@@ -67,13 +67,14 @@ export default function PostDetail() {
           </p>
 
           {!mine && (
-            <div className="owner">
+            <Link to={`/user/${post.user_id}`} className="owner owner-link">
               <Avatar src={post.owner_photo} name={post.owner_name} size={36} />
-              <div>
+              <div className="grow">
                 <strong>{post.owner_name}</strong>
                 <p className="muted small">{post.owner_trades} completed trade{post.owner_trades === 1 ? '' : 's'}</p>
               </div>
-            </div>
+              <span className="link small">View profile</span>
+            </Link>
           )}
 
           {post.description && <p className="detail-desc">{post.description}</p>}
@@ -89,6 +90,12 @@ export default function PostDetail() {
                 <strong>{post.offers_count} offer{post.offers_count === 1 ? '' : 's'} received</strong>
                 <span className="link">View</span>
               </Link>
+              {post.trade_id && (
+                <Link to={`/trade/${post.trade_id}`} className="card info-card row-between">
+                  <strong>{post.trade_status === 'completed' ? 'Trade completed' : 'Trade in progress'}</strong>
+                  <span className="link">View trade</span>
+                </Link>
+              )}
               {!traded && (
                 <div className="row gap actions">
                   <button className="btn btn-outline" onClick={() => navigate(`/post/${post.id}/edit`)}>Edit</button>

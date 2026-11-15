@@ -33,9 +33,11 @@ export default function MyPosts() {
               <PostImage className="thumb" photos={p.photos} category={p.category} alt="" />
               <div className="grow">
                 <strong>{p.title}</strong>
-                <p className="muted small">{p.category} · {p.status === 'traded' ? 'Traded' : offerCount(p.offers_count).toLowerCase()}</p>
+                <p className="muted small">{p.category} · {p.status === 'traded' ? (p.trade_status === 'completed' ? 'Traded' : 'Trade in progress') : offerCount(p.offers_count).toLowerCase()}</p>
               </div>
-              <span className={`badge ${p.status === 'traded' ? 'grey' : 'green'}`}>{p.status === 'traded' ? 'Traded' : 'Open'}</span>
+              <span className={`badge ${p.status === 'traded' ? (p.trade_status === 'completed' ? 'grey' : 'yellow') : 'green'}`}>
+                {p.status === 'traded' ? (p.trade_status === 'completed' ? 'Traded' : 'In trade') : 'Open'}
+              </span>
             </Link>
           ))}
         </div>

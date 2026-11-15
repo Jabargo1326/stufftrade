@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { api } from '../api.js';
 import { useToast } from '../components/Toast.jsx';
 import Screen from '../components/Screen.jsx';
@@ -30,8 +30,8 @@ export default function PostOffers() {
   const choose = async () => {
     setBusy(true);
     try {
-      await api.chooseOffer(choosing.id);
-      navigate('/done/offer-chosen', { replace: true, state: { name: choosing.offerer_name.split(' ')[0] } });
+      const res = await api.chooseOffer(choosing.id);
+      navigate('/done/offer-chosen', { replace: true, state: { name: choosing.offerer_name.split(' ')[0], tradeId: res.trade_id } });
     } catch (e) { toast(e.message); setChoosing(null); } finally { setBusy(false); }
   };
 
@@ -46,8 +46,8 @@ export default function PostOffers() {
             {offers.map((o) => (
               <div key={o.id} className="card offer-card">
                 <div className="offer-top">
-                  <Avatar src={o.offerer_photo} name={o.offerer_name} size={30} />
-                  <div className="grow"><strong>{o.offerer_name}</strong><p className="muted small">{cashLabel(o)}</p></div>
+                  <Link to={`/user/${o.user_id}`} aria-label={`View ${o.offerer_name}'s profile`}><Avatar src={o.offerer_photo} name={o.offerer_name} size={30} /></Link>
+                  <div className="grow"><Link to={`/user/${o.user_id}`}><strong>{o.offerer_name}</strong></Link><p className="muted small">{cashLabel(o)}</p></div>
                   {o.photos[0] && <PostImage className="thumb sm" photos={o.photos} alt="Offered item" />}
                 </div>
                 <p>{o.item || 'Cash only'}</p>
@@ -58,7 +58,10 @@ export default function PostOffers() {
                     <button className="btn btn-primary btn-sm" onClick={() => setChoosing(o)}>Choose this offer</button>
                   </div>
                 ) : (
-                  <span className={`badge ${o.status === 'chosen' ? 'green' : 'red'}`}>{o.status === 'chosen' ? 'Chosen' : 'Declined'}</span>
+                  <div className="row-between">
+                    <span className={`badge ${o.status === 'chosen' ? 'green' : 'red'}`}>{o.status === 'chosen' ? 'Chosen' : 'Declined'}</span>
+                    {o.status === 'chosen' && post?.trade_id && <Link to={`/trade/${post.trade_id}`} className="link small">View trade</Link>}
+                  </div>
                 )}
               </div>
             ))}

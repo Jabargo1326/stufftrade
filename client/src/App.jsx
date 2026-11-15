@@ -14,6 +14,9 @@ import MyPosts from './pages/MyPosts.jsx';
 import PostOffers from './pages/PostOffers.jsx';
 import Offers from './pages/Offers.jsx';
 import EditProfile from './pages/EditProfile.jsx';
+import UserProfile from './pages/UserProfile.jsx';
+import Trades from './pages/Trades.jsx';
+import TradeDetail from './pages/TradeDetail.jsx';
 
 // Only logged-in people can see these pages.
 function Private({ children }) {
@@ -51,6 +54,9 @@ export default function App() {
       <Route path="/offers" element={<Private><Offers /></Private>} />
       <Route path="/profile" element={<Private><Profile /></Private>} />
       <Route path="/profile/edit" element={<Private><EditProfile /></Private>} />
+      <Route path="/user/:id" element={<Private><UserProfile /></Private>} />
+      <Route path="/trades" element={<Private><Trades /></Private>} />
+      <Route path="/trade/:id" element={<Private><TradeDetail /></Private>} />
       <Route path="/my-posts" element={<Private><MyPosts /></Private>} />
       <Route path="/done/:kind" element={<Private><Done /></Private>} />
       <Route path="*" element={<Navigate to="/" replace />} />

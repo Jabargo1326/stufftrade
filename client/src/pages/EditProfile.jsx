@@ -46,7 +46,7 @@ export default function EditProfile() {
   };
 
   return (
-    <Screen title="Edit profile" back="/profile" nav="profile">
+    <Screen title="Edit profile" back="/profile" nav="profile" navMobile={false}>
       <form className="form-wide" onSubmit={submit} noValidate>
         <div className="center">
           {preview ? <span className="avatar" style={{ width: 84, height: 84 }}><img src={preview} alt="" /></span> : <Avatar src={user.photo} name={user.name} size={84} />}

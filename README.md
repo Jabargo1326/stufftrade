@@ -23,6 +23,17 @@ make offers (an item, cash, or both), and choose the offer you like best.
    `stufftrade` database and all tables the first time it starts.
 4. To look at your data: XAMPP → **Admin** next to MySQL (phpMyAdmin), or MySQL Workbench.
 
+## Features
+* Sign up / log in (anyone can make an account), browse + search the catalog, filter by category
+* Post an item to trade (up to 3 photos). **Your own open posts also appear in the catalog** (tagged "Your post")
+* Make offers (an item, cash, or both), choose the best offer
+* **Trades:** choosing an offer creates a trade. Both people see it under *Profile → My trades*, get each other's
+  mobile number to arrange the meet-up, and each taps **Confirm trade completed**. When BOTH confirm, the trade is
+  **successful** and counts toward "completed trades" on both profiles.
+* **Public profiles:** tap a seller's name (post page, offers list, trade page) to see their name, area, member-since,
+  completed trades and open posts. (Email and mobile number stay private.)
+* Saved posts, edit/delete posts, edit profile (with photo)
+
 ## Run it (two terminals)
 
 ```bash
@@ -87,6 +98,9 @@ stufftrade/
 | My Post Detail (owner view) | `pages/PostDetail.jsx` |
 | Offers on My Post / Choose Offer Confirm | `pages/PostOffers.jsx` |
 | Offers tabs / Empty | `pages/Offers.jsx` |
+| Trade details / Confirm dialog / Trade successful (new) | `pages/TradeDetail.jsx`, `pages/Done.jsx` |
+| My trades (new) | `pages/Trades.jsx` |
+| Other person's profile (new) | `pages/UserProfile.jsx` |
 | Edit Profile | `pages/EditProfile.jsx` |
 
 ## Photos
@@ -109,7 +123,8 @@ stufftrade/
 ## Main API routes
 `POST /api/auth/signup` · `POST /api/auth/login` · `GET/PUT /api/auth/me` ·
 `GET/POST /api/posts` · `GET/PUT/DELETE /api/posts/:id` · `POST /api/posts/:id/save` ·
-`GET/POST /api/posts/:id/offers` · `GET /api/offers/mine` · `POST /api/offers/:id/choose|decline`
+`GET/POST /api/posts/:id/offers` · `GET /api/offers/mine` · `POST /api/offers/:id/choose|decline` ·
+`GET /api/trades` · `GET /api/trades/:id` · `POST /api/trades/:id/confirm` · `GET /api/users/:id`
 
 ## Deploying to the internet
 
@@ -145,4 +160,5 @@ Free Render services fall asleep after 15 minutes without visitors; the next vis
 * `Access denied for user 'root'` → wrong `DB_PASSWORD` in `server/.env`.
 * "Cannot reach the server" in the app → the backend terminal isn't running or crashed (read its error).
 * Port already in use → close the old terminal, or run `PORT=3002 npm run server` (and change the port in `client/vite.config.js`).
+* Old demo data has no trades (made before this update)? Run `npm run seed` locally to rebuild it with a finished trade.
 * Want a fresh database? Run `npm run seed` again (it wipes and re-creates the demo data), or drop the `stufftrade` database in phpMyAdmin.

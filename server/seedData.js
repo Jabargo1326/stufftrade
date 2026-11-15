@@ -6,7 +6,7 @@ import { run } from './db.js';
 export async function seedDemo() {
 
   // children first, then parents (foreign keys)
-  for (const t of ['saved', 'offers', 'posts', 'users']) {
+  for (const t of ['saved', 'trades', 'offers', 'posts', 'users']) {
     await run(`DELETE FROM ${t}`);
     if (t !== 'saved') await run(`ALTER TABLE ${t} AUTO_INCREMENT = 1`).catch(() => {}); // not every host allows this; harmless to skip
   }
@@ -49,7 +49,13 @@ export async function seedDemo() {
   await addOffer(lamp, ken, '', 300, 'Cash only');
   await addOffer(lamp, ana, 'Reading light and a book', 0);
   await addOffer(helmet, ken, 'Cycling gloves', 0, 'Can meet at the plaza');
-  await addOffer(novels, mika, 'Board game (Uno + Monopoly)', 0, '', 'chosen');
+  const novelsOffer = (await addOffer(novels, mika, 'Board game (Uno + Monopoly)', 0, '', 'chosen')).insertId;
+  // a finished trade, so the "completed trades" numbers and "My trades" aren't empty
+  await run(
+    `INSERT INTO trades (post_id, offer_id, owner_id, partner_id, owner_confirmed, partner_confirmed, status, completed_at)
+     VALUES (?, ?, ?, ?, 1, 1, 'completed', NOW())`,
+    [novels, novelsOffer, tony, mika]
+  );
   await addOffer(bike, tony, 'Old keyboard, barely used', 500, 'Can meet at the plaza on Saturday');
   await addOffer(bike, ken, 'Used laptop', 0, 'Slow but works');
   await addOffer(bike, ana, 'Gaming headset', 800);

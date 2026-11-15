@@ -70,7 +70,7 @@ export default function Home() {
         <EmptyState icon={<SearchIcon width={56} height={56} />} title="No trade posts found" text="Try another word or category" />
       ) : (
         <div className="grid">
-          {posts.map((p) => <PostCard key={p.id} post={p} onToggleSave={toggleSave} />)}
+          {posts.map((p) => <PostCard key={p.id} post={p} mine={p.user_id === user.id} onToggleSave={toggleSave} />)}
         </div>
       )}
 

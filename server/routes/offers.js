@@ -9,7 +9,8 @@ router.use(requireAuth);
 // GET /api/offers/mine -> offers I sent on other people's posts
 router.get('/mine', wrap(async (req, res) => {
   const rows = await all(
-    `SELECT o.*, p.title AS post_title, p.photos AS post_photos, p.category AS post_category
+    `SELECT o.*, p.title AS post_title, p.photos AS post_photos, p.category AS post_category,
+       (SELECT t.id FROM trades t WHERE t.offer_id = o.id LIMIT 1) AS trade_id
      FROM offers o JOIN posts p ON p.id = o.post_id
      WHERE o.user_id = ? ORDER BY o.created_at DESC, o.id DESC`,
     [req.userId]
@@ -38,11 +39,18 @@ router.post('/:id/choose', wrap(async (req, res) => {
 
   // a transaction = all three updates happen, or none of them do
   const conn = await getConnection();
+  let tradeId;
   try {
     await conn.beginTransaction();
     await conn.query(`UPDATE offers SET status = 'chosen' WHERE id = ?`, [offer.id]);
     await conn.query(`UPDATE offers SET status = 'declined' WHERE post_id = ? AND id != ? AND status = 'pending'`, [post.id, offer.id]);
     await conn.query(`UPDATE posts SET status = 'traded' WHERE id = ?`, [post.id]);
+    // the deal itself: both people can now see it under "My trades"
+    const [ins] = await conn.query(
+      'INSERT INTO trades (post_id, offer_id, owner_id, partner_id) VALUES (?, ?, ?, ?)',
+      [post.id, offer.id, post.user_id, offer.user_id]
+    );
+    tradeId = ins.insertId;
     await conn.commit();
   } catch (e) {
     await conn.rollback();
@@ -51,7 +59,7 @@ router.post('/:id/choose', wrap(async (req, res) => {
     conn.release();
   }
   const who = await get('SELECT name, mobile FROM users WHERE id = ?', [offer.user_id]);
-  res.json({ ok: true, offerer: { name: who.name, mobile: who.mobile } });
+  res.json({ ok: true, trade_id: tradeId, offerer: { name: who.name, mobile: who.mobile } });
 }));
 
 // POST /api/offers/:id/decline

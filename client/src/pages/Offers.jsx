@@ -49,7 +49,7 @@ export default function Offers() {
               <div className="grow">
                 <strong>{p.title}</strong>
                 <p className="muted small">
-                  {p.status === 'traded' ? 'Traded' : p.pending_count > 0 ? `${p.pending_count} offer${p.pending_count > 1 ? 's' : ''} waiting` : 'All offers answered'}
+                  {p.status === 'traded' ? (p.trade_status === 'completed' ? 'Traded' : 'Trade in progress') : p.pending_count > 0 ? `${p.pending_count} offer${p.pending_count > 1 ? 's' : ''} waiting` : 'All offers answered'}
                 </p>
               </div>
               <ChevronRight />
@@ -61,7 +61,7 @@ export default function Offers() {
           {list.map((o) => {
             const [label, color] = STATUS[o.status];
             return (
-              <Link key={o.id} to={`/post/${o.post_id}`} className="card list-row">
+              <Link key={o.id} to={o.trade_id ? `/trade/${o.trade_id}` : `/post/${o.post_id}`} className="card list-row">
                 <PostImage className="thumb" photos={o.post_photos} category={o.post_category} alt="" />
                 <div className="grow">
                   <strong>{o.post_title}</strong>

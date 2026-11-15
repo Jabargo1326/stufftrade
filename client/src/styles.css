@@ -309,3 +309,39 @@ textarea.input { resize: vertical; min-height: 84px; }
 @media (prefers-reduced-motion: reduce) {
   * { animation: none !important; transition: none !important; }
 }
+
+/* =====================================================================
+   NEW: "Your post" tag, public profiles, trades
+   ===================================================================== */
+.tag-mine { position: absolute; top: 8px; left: 8px; padding: 4px 10px; border-radius: 999px; background: var(--plum); color: #fff; font-size: 11px; font-weight: 700; }
+.owner-link { padding: 8px 10px; margin: 10px 0 4px; background: #fff; border-radius: 14px; box-shadow: 0 1px 3px rgba(58,18,34,.08); }
+
+.public-head { display: flex; flex-direction: column; align-items: center; gap: 4px; text-align: center; padding: 8px 0 14px; }
+.public-head h2 { font-size: 20px; margin-top: 8px; }
+.stat-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; max-width: 480px; margin: 0 auto; }
+.stat { padding: 14px; text-align: center; display: flex; flex-direction: column; gap: 2px; }
+.stat strong { font-size: 24px; }
+.public-head + .stat-row + .btn { max-width: 480px; margin-left: auto; margin-right: auto; }
+
+.trade-wrap { max-width: 640px; margin: 0 auto; display: flex; flex-direction: column; gap: 12px; }
+.trade-banner { display: flex; align-items: center; gap: 12px; padding: 14px; border-radius: 16px; background: #fbebc0; color: #6b4d0a; }
+.trade-banner .dot { width: 14px; height: 14px; border-radius: 50%; background: #e0a516; flex: none; }
+.trade-banner.done { background: var(--green-bg); color: var(--green); }
+.trade-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; }
+.trade-item, .trade-partner { padding: 12px 14px; display: flex; flex-direction: column; gap: 8px; }
+.trade-item-row { display: flex; align-items: center; gap: 12px; }
+.contact { display: flex; flex-direction: column; gap: 2px; padding-top: 8px; border-top: 1px solid #f0e9eb; }
+.contact a { color: var(--orange); }
+.trade-steps { padding: 12px 14px; display: flex; flex-direction: column; gap: 10px; }
+.step { display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 14px; color: var(--muted); }
+.step .tick { width: 22px; height: 22px; border-radius: 50%; border: 2px solid #d6c8cc; display: grid; place-items: center; color: transparent; }
+.step.ok { color: var(--plum); }
+.step.ok .tick { background: var(--green); border-color: var(--green); color: #fff; }
+
+/* bottom bar hidden on phones/tablets, but still the sidebar on laptops */
+.shell.has-nav.nav-desktop-only { padding-bottom: 0; }
+.bottom-nav.desktop-only { display: none; }
+@media (min-width: 1024px) {
+  .bottom-nav.desktop-only { display: flex; }
+  .shell.has-nav.nav-desktop-only { padding-left: var(--sidebar-w); }
+}

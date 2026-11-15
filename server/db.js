@@ -100,6 +100,24 @@ export async function initDb() {
       FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4`,
 
+    // one row per agreed deal: made when the owner chooses an offer, "completed" once BOTH people confirm
+    `CREATE TABLE IF NOT EXISTS trades (
+      id                INT AUTO_INCREMENT PRIMARY KEY,
+      post_id           INT NOT NULL,
+      offer_id          INT NOT NULL,
+      owner_id          INT NOT NULL,              -- person who posted the item
+      partner_id        INT NOT NULL,              -- person whose offer was chosen
+      owner_confirmed   TINYINT NOT NULL DEFAULT 0,
+      partner_confirmed TINYINT NOT NULL DEFAULT 0,
+      status            VARCHAR(12) NOT NULL DEFAULT 'agreed',   -- agreed | completed
+      created_at        DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      completed_at      DATETIME NULL,
+      FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE,
+      FOREIGN KEY (offer_id) REFERENCES offers(id) ON DELETE CASCADE,
+      FOREIGN KEY (owner_id) REFERENCES users(id) ON DELETE CASCADE,
+      FOREIGN KEY (partner_id) REFERENCES users(id) ON DELETE CASCADE
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4`,
+
     `CREATE TABLE IF NOT EXISTS saved (
       user_id INT NOT NULL,
       post_id INT NOT NULL,

@@ -11,6 +11,8 @@ import authRoutes from './routes/auth.js';
 import postRoutes from './routes/posts.js';
 import offerRoutes from './routes/offers.js';
 import imageRoutes from './routes/images.js';
+import userRoutes from './routes/users.js';
+import tradeRoutes from './routes/trades.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
@@ -48,6 +50,8 @@ app.use('/api/auth', authRoutes);
 app.use('/api/posts', postRoutes);
 app.use('/api/offers', offerRoutes);
 app.use('/api/images', imageRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/trades', tradeRoutes);
 app.get('/api/health', (req, res) => res.json({ ok: true }));
 
 // Optional: after `npm run build` in /client, the server can serve the finished site too.

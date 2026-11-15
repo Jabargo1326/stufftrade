@@ -4,11 +4,11 @@ import { ChevronLeft } from './Icons.jsx';
 
 // Page wrapper: coloured header (title + optional back arrow) + content + optional bottom nav.
 // tone: "dark" (plum) or "maroon" (login/signup).  header: extra header content (e.g. search bar).
-export default function Screen({ title, back, tone = 'dark', header, nav, children, className = '' }) {
+export default function Screen({ title, back, tone = 'dark', header, nav, navMobile = true, children, className = '' }) {
   const navigate = useNavigate();
   const goBack = () => (typeof back === 'string' ? navigate(back) : navigate(-1));
   return (
-    <div className={`shell ${nav ? 'has-nav' : ''}`}>
+    <div className={`shell ${nav ? 'has-nav' : ''} ${nav && !navMobile ? 'nav-desktop-only' : ''}`}>
       {(title || header) && (
         <header className={`topbar ${tone}`}>
           <div className="topbar-inner">
@@ -25,7 +25,7 @@ export default function Screen({ title, back, tone = 'dark', header, nav, childr
         </header>
       )}
       <main className={`content ${className}`}>{children}</main>
-      {nav && <BottomNav active={nav} />}
+      {nav && <BottomNav active={nav} desktopOnly={!navMobile} />}
     </div>
   );
 }
